@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Ashentree service area</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+html,body,#map{margin:0;height:100%;background:#EEF0EB}
+.leaflet-tile-pane{filter:grayscale(.85) sepia(.15) contrast(.95) brightness(1.03)}
+.town{font-family:"Red Hat Display",Arial,sans-serif;font-weight:700;font-size:12px;color:#1F3A2D;background:rgba(250,251,248,.92);border:none;border-radius:4px;box-shadow:none;padding:2px 6px}
+.town.base{background:#1F3A2D;color:#fff;font-weight:900;font-size:13px}
+.leaflet-tooltip-left.town::before,.leaflet-tooltip-right.town::before,.leaflet-tooltip-top.town::before{display:none}
+</style>
+</head>
+<body>
+<div id="map" role="img" aria-label="Map of the Ashentree service area around Newbury, covering West Berkshire, north Hampshire, south Oxfordshire and east Wiltshire"></div>
+<script>
+const map = L.map('map', { scrollWheelZoom: false, zoomSnap: 0.1, zoomControl: true, attributionControl: true }).setView([51.4014, -1.3231], 9);
+const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 16, referrerPolicy: 'strict-origin-when-cross-origin', attribution: '© OpenStreetMap contributors' }).addTo(map);
+let tileErrors = 0;
+tiles.on('tileerror', () => { if (++tileErrors > 3) map.removeLayer(tiles); });
+const base = [51.4014, -1.3231];
+const area = L.circle(base, { radius: 36000, color: '#4B6A38', weight: 2, fillColor: '#4B6A38', fillOpacity: .14, dashArray: '6 6' }).addTo(map);
+map.fitBounds(L.latLng(base).toBounds(72000), { padding: [4, 4] });
+const towns = [
+  ['Hungerford', 51.4146, -1.5154, 'top'], ['Marlborough', 51.4197, -1.7296, 'left'],
+  ['Wantage', 51.5886, -1.4265, 'left'],
+  ['Didcot', 51.6080, -1.2448, 'right'], ['Pangbourne', 51.4855, -1.0862, 'right'],
+  ['Basingstoke', 51.2665, -1.0924, 'right'], ['Andover', 51.2082, -1.4800, 'left']
+];
+towns.forEach(([n, lat, lng, dir]) => {
+  L.circleMarker([lat, lng], { radius: 4, color: '#1F3A2D', weight: 2, fillColor: '#FAFBF8', fillOpacity: 1 })
+    .bindTooltip(n, { permanent: true, direction: dir, className: 'town', offset: [dir === 'left' ? -6 : dir === 'top' ? 0 : 6, dir === 'top' ? -4 : 0] }).addTo(map);
+});
+L.circleMarker(base, { radius: 8, color: '#FAFBF8', weight: 3, fillColor: '#9C7A3C', fillOpacity: 1 })
+  .bindTooltip('Newbury', { permanent: true, direction: 'right', className: 'town base', offset: [10, 0] }).addTo(map);
+</script>
+</body>
+</html>
